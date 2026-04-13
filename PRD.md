@@ -4,11 +4,13 @@
 
 | Meta | Value |
 |------|-------|
-| **Version** | 1.0 |
-| **Status** | Planning |
+| **Version** | 2.0 |
+| **Status** | Development |
 | **Created** | 2026-04-13 |
+| **Updated** | 2026-04-14 |
 | **Owner** | Siarhei Yermakovich |
 | **Notion** | https://www.notion.so/Loyalty-Coupon-Bot-3419aed68921819086dff4e321263b85 |
+| **GitHub** | https://github.com/SergejYermakovich/loyalty-coupon-bot |
 
 ---
 
@@ -53,6 +55,7 @@
    - Always with user in their phone
    - No app download required
    - Instant activation via bot
+   - **Telegram Mini Apps for business UI**
 
 2. **Flexible configuration**
    - "9 stamps = free coffee"
@@ -60,16 +63,17 @@
    - "3 purchases = free dessert"
    - Custom rewards per business
 
-3. **Analytics dashboard**
+3. **Analytics dashboard (Telegram Mini App)**
    - Customer visits over time
    - Retention/churn rates
    - Peak hours analysis
-   - Revenue attribution
+   - Simple text + emoji reports in bot
 
-4. **QR code scanning**
-   - Staff scans customer's QR
+4. **QR code scanning (Telegram Mini App)**
+   - Staff scans customer's QR via camera
    - Instant stamp marking
-   - Fraud prevention (geolocation, time limits)
+   - Fraud prevention (time limits, staff auth)
+   - Haptic feedback on scan
 
 ---
 
@@ -133,24 +137,36 @@
 | **Backend** | Spring Boot 3.x | Java expertise, fast development |
 | **Database** | PostgreSQL | Reliable, scalable, free tier available |
 | **Bot** | Telegram Bot API + telegrambots-client | No app install, instant access |
-| **Frontend** | React/Next.js or Thymeleaf | Admin dashboard for businesses |
+| **Frontend** | **Telegram Mini Apps** (HTML/CSS/JS) | Native Telegram UX, camera access |
+| **QR Library** | html5-qrcode | Fast, reliable QR scanning |
 | **Hosting** | Hetzner/DigitalOcean | Cost-effective ($5-10/mo start) |
-| **QR Scanning** | Web-based scanner | No native app needed |
 
 ### System Components
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Telegram Bot  │────▶│   Spring Boot    │────▶│  PostgreSQL DB  │
-│   (Users)       │     │   Backend API    │     │                 │
+│  Telegram Bot   │────▶│   Spring Boot    │────▶│  PostgreSQL DB  │
+│  (All users)    │     │   Backend API    │     │                 │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
+                               ▲
                                │
-                               ▼
                         ┌──────────────────┐
-                        │   Admin Dashboard │
-                        │   (Web Panel)     │
+                        │ Telegram Mini App│
+                        │ (QR Scanner +    │
+                        │  Dashboard)      │
                         └──────────────────┘
 ```
+
+### Why Telegram Mini Apps?
+
+| Benefit | Description |
+|---------|-------------|
+| **No separate web panel** | Everything in Telegram |
+| **Camera access** | Native QR scanning |
+| **Auto theme** | Dark/light mode from Telegram |
+| **Native buttons** | MainButton, BackButton |
+| **User data** | Telegram.initData for auth |
+| **Faster MVP** | 1 week vs 2-3 weeks for web panel |
 
 ### Database Schema (MVP)
 
@@ -178,29 +194,35 @@ payments (id, business_id, amount, currency, status, period_start, period_end)
 
 ## 📅 MVP Scope (4-6 Weeks)
 
-### Week 1-2: Core Infrastructure
-- [ ] Spring Boot project setup
-- [ ] Database schema + Liquibase migrations
-- [ ] Telegram Bot registration + basic commands
-- [ ] User authentication (Telegram ID)
+### Week 1-2: Core Infrastructure ✅
+- [x] Spring Boot project setup
+- [x] Database schema + Liquibase migrations
+- [x] Telegram Bot registration + basic commands
+- [x] User authentication (Telegram ID)
+- [x] Entities: Business, Coupon, User, UserCoupon, Visit, StaffMember
+- [x] Services: BusinessService, CouponService, UserService, UserCouponService, QrCodeService
 
-### Week 3-4: Core Features
-- [ ] Business registration flow
-- [ ] Coupon creation (name, stamps target, reward)
-- [ ] User coupon activation
-- [ ] QR code generation + scanning
-- [ ] Stamp marking logic
+### Week 3-4: Core Features + Mini Apps 🚧
+- [x] Business registration flow (/createbusiness)
+- [x] Coupon creation (auto + service)
+- [x] User coupon activation (/activatecoupon)
+- [x] QR code generation (QrCodeService)
+- [x] Stamp marking logic (UserCouponService.addStamp)
+- [ ] **Telegram Mini App: QR Scanner** (camera + html5-qrcode)
+- [ ] **Telegram Mini App: Business Dashboard** (stats, coupons)
+- [ ] Bot commands: /claimreward, /stats, /business
 
-### Week 5: Admin Dashboard
-- [ ] Business web panel (login via Telegram)
-- [ ] Coupon management (CRUD)
-- [ ] Basic statistics (total users, stamps, redemptions)
-
-### Week 6: Polish + Launch
+### Week 5: Polish + Integration
+- [ ] Mini App ↔ Bot integration (sendData)
+- [ ] Notifications (stamp added, coupon completed)
+- [ ] Fraud prevention (time limits, staff auth)
 - [ ] Error handling + logging
+
+### Week 6: Launch Prep
 - [ ] Deploy to staging
 - [ ] Test with 2-3 friendly businesses
-- [ ] Bug fixes + launch prep
+- [ ] Bug fixes
+- [ ] Launch prep
 
 ---
 
@@ -252,21 +274,196 @@ payments (id, business_id, amount, currency, status, period_start, period_end)
 ## 🔗 Related Links
 
 - **Notion Project:** https://www.notion.so/Loyalty-Coupon-Bot-3419aed68921819086dff4e321263b85
-- **GitHub Repo:** _(to be created)_
-- **Figma Designs:** _(to be created)_
+- **GitHub Repo:** https://github.com/SergejYermakovich/loyalty-coupon-bot
+- **Telegram Docs:** https://core.telegram.org/bots/webapps
+- **html5-qrcode:** https://github.com/mebjas/html5-qrcode
 
 ---
 
 ## 📝 Next Steps
 
-1. [ ] **Create GitHub repository** (public, MIT license)
-2. [ ] **Set up project board** (GitHub Projects or Jira)
-3. [ ] **Design database schema** (detailed ERD)
-4. [ ] **Create Figma mockups** (bot flows + admin dashboard)
-5. [ ] **Initialize Spring Boot project** (start.spring.io)
-6. [ ] **Register Telegram bot** (@BotFather)
-7. [ ] **Find 3 pilot businesses** (friends/network in Brest)
+### Completed ✅
+
+1. [x] **GitHub repository created** (public, MIT license)
+2. [x] **Database schema designed** (7 entities + Liquibase)
+3. [x] **Spring Boot project initialized**
+4. [x] **Telegram Bot basic commands** (/start, /help, /mycoupons, /activatecoupon, /showqr, /createbusiness)
+5. [x] **Services implemented** (Business, Coupon, User, UserCoupon, QrCode)
+
+### In Progress 🚧
+
+6. [ ] **Telegram Mini App: QR Scanner** (html5-qrcode + camera)
+7. [ ] **Telegram Mini App: Business Dashboard** (stats, coupons CRUD)
+8. [ ] **Bot commands:** /claimreward, /stats, /business
+9. [ ] **Mini App ↔ Bot integration** (sendData handling)
+
+### TODO
+
+10. [ ] **Register Telegram bot** (@BotFather) — get token
+11. [ ] **Deploy Mini App** (static files on server)
+12. [ ] **Find 3 pilot businesses** (friends/network in Brest)
+13. [ ] **Test end-to-end flow**
 
 ---
 
-*Last updated: 2026-04-13*
+## 👤 User Flow Diagrams
+
+### Customer Flow
+
+```
+┌─────────────┐
+│  Find Bot   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  /start     │ → Welcome message + commands
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /activatecoupon 1 │ → Coupon activated
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /mycoupons  │ → List of coupons with progress
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  /showqr 1  │ → QR code image sent
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Show QR at  │
+│   counter   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Staff scans │
+│   QR code   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  +1 stamp!  │ → Notification: "4/9 stamps"
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  Repeat 5x  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  9/9 Done!  │ → "🎉 Claim reward: /claimreward 1"
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /claimreward 1 │ → Reward claimed, coupon reset
+└─────────────┘
+```
+
+### Business Owner Flow
+
+```
+┌─────────────┐
+│ /createbusiness Coffee House │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Business created + test coupon │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Share coupon ID with customers │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Customers activate coupons │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /scan → Open Mini App │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Scan customer QR code │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ Confirm stamp → +1 stamp added │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│ /stats → View statistics │
+└─────────────┘
+```
+
+---
+
+## 📱 Telegram Mini Apps Specification
+
+### 1. QR Scanner Mini App
+
+**URL:** `/app/scan.html`
+
+**Features:**
+- Camera access via html5-qrcode
+- Real-time QR scanning
+- MainButton: "✅ Add Stamp"
+- Haptic feedback on scan
+
+**Data flow:**
+```
+Scan QR → Parse userCouponId → Show confirmation → 
+MainButton click → tg.sendData({action: "add_stamp", userCouponId}) → 
+Bot receives → Add stamp → Send notification
+```
+
+### 2. Business Dashboard Mini App
+
+**URL:** `/app/dashboard.html`
+
+**Features:**
+- Statistics (visits, active coupons, rewards)
+- Coupon list with progress
+- Create new coupon (wizard)
+- Export data
+
+**Tabs:**
+- 📊 Stats
+- 🎫 Coupons
+- 👥 Customers
+- ⚙️ Settings
+
+---
+
+## 🎯 Success Metrics (Updated)
+
+### Product Metrics
+- **Activation rate:** % of businesses that create 1st coupon
+- **Engagement:** Avg stamps per user per month
+- **Retention:** % of businesses active after 90 days
+- **Mini App usage:** % of businesses using QR scanner weekly
+
+### Business Metrics
+- **MRR:** Monthly recurring revenue
+- **CAC:** Customer acquisition cost
+- **LTV:** Lifetime value per customer
+- **Churn:** % of customers cancelling per month
+
+---
+
+*Last updated: 2026-04-14*

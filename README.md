@@ -66,9 +66,9 @@ src/main/java/com/loyaltybot/
 ## 📅 MVP Timeline
 
 - **Week 1-2:** Core infrastructure ✅ (Spring Boot, DB, Bot, Entities, Repositories, Services)
-- **Week 3-4:** Core features 🚧 (coupons ✅, QR generation ✅, stamps ✅, QR scanning, Business web panel)
-- **Week 5:** Admin dashboard
-- **Week 6:** Polish + launch with pilot businesses
+- **Week 3-4:** Core features + Mini Apps 🚧 (coupons ✅, QR generation ✅, stamps ✅, **Telegram Mini Apps**)
+- **Week 5:** Integration + Polish
+- **Week 6:** Launch with pilot businesses
 
 ### ✅ Completed Features
 
@@ -78,6 +78,10 @@ src/main/java/com/loyaltybot/
 - UserCoupon management (activate, add stamp, claim reward)
 - QR code generation for coupons (ZXing)
 - Business & Coupon CRUD services
+- **Telegram Mini Apps:**
+  - QR Scanner (html5-qrcode + camera)
+  - Business Dashboard (stats, activity)
+  - Native Telegram theme support
 
 ## 🚀 Getting Started
 
@@ -112,18 +116,36 @@ mvn spring-boot:run
 
 ### Bot Commands
 
+**For Customers:**
 - `/start` — Welcome message
 - `/help` — Help information
 - `/mycoupons` — View your active coupons with progress
 - `/activatecoupon <ID>` — Activate a coupon by ID
-- `/showqr <ID>` — Show QR code for a coupon
+- `/showqr <ID>` — Show QR code for a coupon (image)
+- `/claimreward <ID>` — Claim reward for completed coupon
+
+**For Business:**
 - `/createbusiness <Name>` — Create a business (for owners)
-- `/createbusiness` — Show business creation instructions
+- `/scan` — Open QR Scanner Mini App
+- `/business` — Open Business Dashboard Mini App
+- `/stats` — View business statistics
 
 ## 📄 Documentation
 
 - **PRD:** [PRD.md](./PRD.md)
 - **Notion:** [Project Page](https://www.notion.so/Loyalty-Coupon-Bot-PRD-3419aed68921819086dff4e321263b85)
+- **Telegram WebApp Docs:** https://core.telegram.org/bots/webapps
+- **html5-qrcode:** https://github.com/mebjas/html5-qrcode
+
+## 📱 Telegram Mini Apps
+
+The project includes Telegram Mini Apps for business users:
+
+- **QR Scanner** (`/app/scan.html`) — Camera-based QR scanning
+- **Dashboard** (`/app/index.html`) — Business statistics and management
+- **Coupons** (`/app/coupons.html`) — Coupon CRUD operations
+
+Mini Apps use native Telegram theme, camera access, and haptic feedback.
 
 ## 📝 License
 

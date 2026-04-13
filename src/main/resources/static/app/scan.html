@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>QR Сканер — Loyalty Bot</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>📷 QR Сканер</h1>
+      <p class="subtitle">Отсканируйте QR-код клиента</p>
+    </header>
+
+    <!-- Scanner -->
+    <div class="scanner-container">
+      <div id="reader" class="scanner"></div>
+    </div>
+
+    <!-- Status -->
+    <div id="scanStatus" class="status">
+      <div class="status-icon">⏳</div>
+      <div class="status-text">Наведите камеру на QR-код</div>
+    </div>
+
+    <!-- Manual Input -->
+    <div class="manual-input">
+      <p>Или введите ID купона вручную:</p>
+      <div class="input-group">
+        <input type="number" id="manualCouponId" placeholder="ID купона" class="input">
+        <button onclick="addStampManual()" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+
+    <!-- Flash Toggle -->
+    <div class="controls">
+      <button onclick="toggleFlash()" class="btn btn-secondary">
+        <span id="flashIcon">💡</span>
+        <span id="flashText">Включить фонарик</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/scanner.js"></script>
+</body>
+</html>
