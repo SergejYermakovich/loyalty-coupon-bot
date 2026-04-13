@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: loyalty-coupon-bot
+  
+  profiles:
+    active: dev
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/loyaltybot
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+telegram:
+  bot:
+    token: ${TELEGRAM_BOT_TOKEN:your-bot-token-here}
+    username: ${TELEGRAM_BOT_USERNAME:LoyaltyCouponBot}
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.loyaltybot: DEBUG
+    org.telegram: INFO
