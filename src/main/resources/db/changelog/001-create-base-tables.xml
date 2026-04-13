@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001" author="siarhei">
+        <!-- Businesses table -->
+        <createTable tableName="businesses">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner_telegram_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="plan" type="VARCHAR(50)" defaultValue="starter">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timezone" type="VARCHAR(100)" defaultValue="Europe/Minsk"/>
+            <column name="active" type="BOOLEAN" defaultValue="true"/>
+            <column name="subscription_ends_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Coupons table -->
+        <createTable tableName="coupons">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_coupons_business" references="businesses(id)"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="stamp_target" type="INTEGER" defaultValueNumeric="10">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reward_description" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="validity_days" type="INTEGER" defaultValueNumeric="30"/>
+            <column name="active" type="BOOLEAN" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Users table -->
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="telegram_id" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="username" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="language_code" type="VARCHAR(10)" defaultValue="ru"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- User Coupons table -->
+        <createTable tableName="user_coupons">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_coupons_user" references="users(id)"/>
+            </column>
+            <column name="coupon_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_coupons_coupon" references="coupons(id)"/>
+            </column>
+            <column name="stamps" type="INTEGER" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="claimed_at" type="TIMESTAMP"/>
+            <column name="active" type="BOOLEAN" defaultValue="true"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Visits table -->
+        <createTable tableName="visits">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_coupon_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_visits_user_coupon" references="user_coupons(id)"/>
+            </column>
+            <column name="staff_member_id" type="BIGINT"/>
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="visit_time" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="notes" type="TEXT"/>
+            <column name="cancelled" type="BOOLEAN" defaultValue="false"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Staff Members table -->
+        <createTable tableName="staff_members">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="business_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_staff_members_business" references="businesses(id)"/>
+            </column>
+            <column name="telegram_id" type="BIGINT"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="VARCHAR(50)" defaultValue="staff"/>
+            <column name="active" type="BOOLEAN" defaultValue="true"/>
+            <column name="last_active_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

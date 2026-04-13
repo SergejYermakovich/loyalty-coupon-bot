@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="002" author="siarhei">
+        <!-- Business indexes -->
+        <createIndex tableName="businesses" indexName="idx_businesses_owner_telegram_id">
+            <column name="owner_telegram_id"/>
+        </createIndex>
+        <createIndex tableName="businesses" indexName="idx_businesses_active">
+            <column name="active"/>
+        </createIndex>
+
+        <!-- Coupon indexes -->
+        <createIndex tableName="coupons" indexName="idx_coupons_business_id">
+            <column name="business_id"/>
+        </createIndex>
+        <createIndex tableName="coupons" indexName="idx_coupons_active">
+            <column name="active"/>
+        </createIndex>
+
+        <!-- User indexes -->
+        <createIndex tableName="users" indexName="idx_users_telegram_id">
+            <column name="telegram_id"/>
+        </createIndex>
+
+        <!-- User Coupon indexes -->
+        <createIndex tableName="user_coupons" indexName="idx_user_coupons_user_id">
+            <column name="user_id"/>
+        </createIndex>
+        <createIndex tableName="user_coupons" indexName="idx_user_coupons_coupon_id">
+            <column name="coupon_id"/>
+        </createIndex>
+        <createIndex tableName="user_coupons" indexName="idx_user_coupons_active">
+            <column name="active"/>
+        </createIndex>
+        <createIndex tableName="user_coupons" indexName="idx_user_coupons_completed_at">
+            <column name="completed_at"/>
+        </createIndex>
+
+        <!-- Visit indexes -->
+        <createIndex tableName="visits" indexName="idx_visits_user_coupon_id">
+            <column name="user_coupon_id"/>
+        </createIndex>
+        <createIndex tableName="visits" indexName="idx_visits_visit_time">
+            <column name="visit_time"/>
+        </createIndex>
+
+        <!-- Staff Member indexes -->
+        <createIndex tableName="staff_members" indexName="idx_staff_members_business_id">
+            <column name="business_id"/>
+        </createIndex>
+        <createIndex tableName="staff_members" indexName="idx_staff_members_active">
+            <column name="active"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

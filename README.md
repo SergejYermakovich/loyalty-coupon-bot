@@ -27,22 +27,83 @@ Small businesses (coffee shops, barber shops, salons) struggle with:
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Spring Boot 3.x
-- **Database:** PostgreSQL
-- **Bot:** Telegram Bot API (telegrambots-client)
-- **Frontend:** React/Next.js or Thymeleaf
-- **Hosting:** Hetzner/DigitalOcean
+- **Backend:** Spring Boot 3.2.3
+- **Database:** PostgreSQL + Liquibase
+- **Bot:** Telegram Bot API 9.x
+- **Build:** Maven
+
+## 📁 Project Structure
+
+```
+src/main/java/com/loyaltybot/
+├── LoyaltyCouponBotApplication.java
+├── bot/
+│   └── LoyaltyBot.java          # Telegram bot handler
+├── config/
+│   └── TelegramBotConfig.java   # Bot configuration
+├── entity/
+│   ├── BaseEntity.java          # Base entity with timestamps
+│   ├── Business.java            # Business entity
+│   ├── Coupon.java              # Coupon entity
+│   ├── User.java                # User entity
+│   ├── UserCoupon.java          # User-Coupon progress
+│   ├── Visit.java               # Visit history
+│   └── StaffMember.java         # Staff entity
+├── repository/
+│   ├── BusinessRepository.java
+│   ├── CouponRepository.java
+│   ├── UserRepository.java
+│   └── UserCouponRepository.java
+└── service/
+    ├── BusinessService.java
+    ├── CouponService.java
+    └── UserService.java
+```
 
 ## 📅 MVP Timeline
 
-- **Week 1-2:** Core infrastructure (Spring Boot, DB, Bot)
+- **Week 1-2:** Core infrastructure ✅ (Spring Boot, DB, Bot)
 - **Week 3-4:** Core features (coupons, QR scanning, stamps)
 - **Week 5:** Admin dashboard
 - **Week 6:** Polish + launch with pilot businesses
 
 ## 🚀 Getting Started
 
-_(Coming soon - project initialization in progress)_
+### Prerequisites
+- Java 17+
+- PostgreSQL 14+
+- Telegram Bot Token (from @BotFather)
+
+### Configuration
+
+Create `.env` or set environment variables:
+
+```bash
+export TELEGRAM_BOT_TOKEN=your-bot-token-here
+export TELEGRAM_BOT_USERNAME=YourBotName
+```
+
+### Run with Docker (PostgreSQL)
+
+```bash
+docker run --name loyaltybot-db -e POSTGRES_DB=loyaltybot \
+  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 -d postgres:15
+```
+
+### Build & Run
+
+```bash
+mvn clean install
+mvn spring-boot:run
+```
+
+### Bot Commands
+
+- `/start` — Welcome message
+- `/help` — Help information
+- `/mycoupons` — View your coupons
+- `/createbusiness` — Create a business (for owners)
 
 ## 📄 Documentation
 
@@ -56,4 +117,5 @@ MIT
 ---
 
 **Created:** 2026-04-13  
-**Owner:** Siarhei Yermakovich (@xmlreader)
+**Owner:** Siarhei Yermakovich (@xmlreader)  
+**Status:** 🚧 Development in progress
