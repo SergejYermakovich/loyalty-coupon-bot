@@ -147,6 +147,45 @@ The project includes Telegram Mini Apps for business users:
 
 Mini Apps use native Telegram theme, camera access, and haptic feedback.
 
+## 🔌 REST API
+
+Mini Apps communicate with the backend via REST API:
+
+### Business
+
+- `GET /api/business/stats` — Get business statistics
+- `GET /api/business/coupons` — List business coupons
+- `GET /api/business/visits` — Recent visits
+
+### Coupons
+
+- `GET /api/coupons/{userCouponId}` — Get coupon info (for QR scanner)
+- `POST /api/coupons/{userCouponId}/claim` — Claim reward
+
+### Stamps
+
+- `POST /api/stamps/add` — Add stamp to coupon
+
+### Example Request
+
+```bash
+curl -X POST https://your-domain.com/api/stamps/add \
+  -H "Content-Type: application/json" \
+  -d '{"userCouponId": 1, "staffMemberId": 1, "location": "Coffee House"}'
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "userCouponId": 1,
+  "newStamps": 4,
+  "stampTarget": 9,
+  "completed": false
+}
+```
+
 ## 📝 License
 
 MIT

@@ -101,6 +101,8 @@ public class LoyaltyBot extends TelegramLongPollingBot {
                 handleShowQr(chatId, userId, messageText);
             } else if (messageText.startsWith("/createbusiness ")) {
                 handleCreateBusinessWithName(chatId, userId, messageText);
+            } else if (messageText.startsWith("/claimreward ")) {
+                handleClaimReward(chatId, userId, messageText);
             } else {
                 sendUnknownCommand(chatId);
             }
@@ -135,7 +137,7 @@ public class LoyaltyBot extends TelegramLongPollingBot {
             "/mycoupons — показать мои купоны%n" +
             "/showqr <ID> — показать QR-код купона%n" +
             "/activatecoupon <ID> — активировать купон%n" +
-            "/claimreward <ID> — забрать награду%n%n" +
+            "/claimreward <ID> — забрать награду (когда 100%)%n%n" +
             "*Для бизнеса:*%n" +
             "/createbusiness <Название> — создать бизнес%n" +
             "/scan — открыть QR сканер%n" +
@@ -291,6 +293,48 @@ public class LoyaltyBot extends TelegramLongPollingBot {
             sendMessage(chatId, "⚠️ " + e.getMessage());
         } catch (Exception e) {
             log.error("Error in handleCreateBusinessWithName", e);
+            sendMessage(chatId, "❌ Ошибка: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Забрать награду
+     */
+    private void handleClaimReward(Long chatId, Long userId, String messageText) {
+        try {
+            Long userCouponId = Long.parseLong(messageText.replace("/claimreward ", "").trim());
+            
+            UserCoupon userCoupon = userCouponService.claimReward(userCouponId);
+            
+            // Проверяем, что купон принадлежит пользователю
+            if (!userCoupon.getUser().getId().equals(userId)) {
+                sendMessage(chatId, "❌ Этот купон не принадлежит вам.");
+                return;
+            }
+            
+            String text = String.format(
+                "🎉 *Награда получена!*%n%n" +
+                "✅ *%s*%n" +
+                "🎁 %s%n%n" +
+                "Спасибо, что вы с нами!%n" +
+                "Приходите ещё — новые купоны ждут вас! ☺️",
+                userCoupon.getCoupon().getName(),
+                userCoupon.getCoupon().getRewardDescription()
+            );
+            
+            sendMessage(chatId, text);
+            
+            // Уведомление бизнесу (можно реализовать позже)
+            log.info("Reward claimed: user={}, coupon={}, business={}", 
+                userId, userCoupon.getCoupon().getName(), 
+                userCoupon.getCoupon().getBusiness().getName());
+            
+        } catch (NumberFormatException e) {
+            sendMessage(chatId, "❌ Неверный формат. Используйте: /claimreward <ID>");
+        } catch (IllegalStateException e) {
+            sendMessage(chatId, "⚠️ " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Error in handleClaimReward", e);
             sendMessage(chatId, "❌ Ошибка: " + e.getMessage());
         }
     }
