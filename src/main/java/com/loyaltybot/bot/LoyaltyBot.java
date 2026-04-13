@@ -12,16 +12,21 @@ import com.loyaltybot.service.UserCouponService;
 import com.loyaltybot.service.UserService;
 import com.google.zxing.WriterException;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -34,6 +39,8 @@ public class LoyaltyBot extends TelegramLongPollingBot {
     private final CouponService couponService;
     private final UserCouponService userCouponService;
     private final QrCodeService qrCodeService;
+    
+    private static final String WEB_APP_URL = "https://your-domain.com/app"; // TODO: Update after deploy
 
     public LoyaltyBot(TelegramBotConfig botConfig, UserService userService, 
                       BusinessService businessService, CouponService couponService,
@@ -49,6 +56,20 @@ public class LoyaltyBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        // Обработка данных от Mini App
+        if (update.hasCallbackQuery()) {
+            String callbackData = update.getCallbackQuery().getData();
+            Long chatId = update.getCallbackQuery().getMessage().getChatId();
+            Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+            
+            log.info("Received callback: {}", callbackData);
+            
+            if (callbackData.startsWith("stamp_added:")) {
+                handleStampAdded(callbackData, chatId, messageId);
+            }
+            return;
+        }
+        
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
@@ -68,6 +89,10 @@ public class LoyaltyBot extends TelegramLongPollingBot {
                 handleHelp(chatId);
             } else if (messageText.equals("/mycoupons")) {
                 handleMyCoupons(chatId, userId);
+            } else if (messageText.equals("/scan")) {
+                handleScan(chatId);
+            } else if (messageText.equals("/business")) {
+                handleBusinessPanel(chatId);
             } else if (messageText.equals("/createbusiness")) {
                 handleCreateBusiness(chatId, userId);
             } else if (messageText.startsWith("/activatecoupon ")) {
@@ -108,10 +133,14 @@ public class LoyaltyBot extends TelegramLongPollingBot {
             "• Собери нужное количество и получи награду!%n%n" +
             "*Команды:*%n" +
             "/mycoupons — показать мои купоны%n" +
-            "/showqr <ID> — показать QR-код купона%n%n" +
+            "/showqr <ID> — показать QR-код купона%n" +
+            "/activatecoupon <ID> — активировать купон%n" +
+            "/claimreward <ID> — забрать награду%n%n" +
             "*Для бизнеса:*%n" +
             "/createbusiness <Название> — создать бизнес%n" +
-            "Сканируй QR-коды клиентов для добавления печатей%n%n" +
+            "/scan — открыть QR сканер%n" +
+            "/business — панель управления%n" +
+            "/stats — статистика%n%n" +
             "Вопросы? Пиши @xmlreader";
         sendMessage(chatId, text);
     }
@@ -240,10 +269,13 @@ public class LoyaltyBot extends TelegramLongPollingBot {
                 "🎁 Награда: %s%n" +
                 "📊 Печатей нужно: %d%n" +
                 "🆔 ID купона: `%d`%n%n" +
+                "*Управление бизнесом:*%n" +
+                "📷 /scan — QR сканер для сотрудников%n" +
+                "📊 /business — панель управления%n" +
+                "📈 /stats — статистика%n%n" +
                 "Теперь ты можешь:%n" +
                 "• Активировать купон себе: /activatecoupon %d%n" +
-                "• Дать ID купона клиентам для активации%n%n" +
-                "_Скоро появится веб-панель для управления бизнесом_",
+                "• Дать ID купона клиентам для активации",
                 business.getName(),
                 business.getId(),
                 business.getPlan(),
@@ -263,6 +295,98 @@ public class LoyaltyBot extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Обработка данных от Mini App (stamp added)
+     */
+    private void handleStampAdded(String callbackData, Long chatId, Integer messageId) {
+        try {
+            // Парсим данные: stamp_added:userCouponId:newStamps:stampTarget
+            String[] parts = callbackData.split(":");
+            Long userCouponId = Long.parseLong(parts[1]);
+            Integer newStamps = Integer.parseInt(parts[2]);
+            Integer stampTarget = Integer.parseInt(parts[3]);
+            
+            String text = String.format(
+                "✅ *Печать добавлена!*%n%n" +
+                "📊 Прогресс: %d/%d%n" +
+                "%s",
+                newStamps,
+                stampTarget,
+                newStamps >= stampTarget ? 
+                    "🎉 Купон завершён! Забери награду: /claimreward " + userCouponId :
+                    "Ещё " + (stampTarget - newStamps) + " печатей до награды!"
+            );
+            
+            editMessageText(chatId, messageId, text);
+            
+        } catch (Exception e) {
+            log.error("Error in handleStampAdded", e);
+        }
+    }
+
+    /**
+     * Открыть QR Scanner Mini App
+     */
+    private void handleScan(Long chatId) {
+        String text = "📷 *QR Сканер*%n%n" +
+            "Откройте сканер для добавления печатей клиентам.%n%n" +
+            "Наведите камеру на QR-код купона клиента.";
+        
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton("🚀 Открыть сканер");
+        button.setUrl(WEB_APP_URL + "/scan.html");
+        row.add(button);
+        rows.add(row);
+        
+        keyboard.setKeyboard(rows);
+        
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId.toString());
+        message.setText(text);
+        message.setParseMode("Markdown");
+        message.setReplyMarkup(keyboard);
+        
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Failed to send scan message", e);
+        }
+    }
+
+    /**
+     * Открыть Business Dashboard Mini App
+     */
+    private void handleBusinessPanel(Long chatId) {
+        String text = "🏢 *Панель бизнеса*%n%n" +
+            "Управляйте купонами и смотрите статистику.";
+        
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton("📊 Открыть панель");
+        button.setUrl(WEB_APP_URL + "/index.html");
+        row.add(button);
+        rows.add(row);
+        
+        keyboard.setKeyboard(rows);
+        
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId.toString());
+        message.setText(text);
+        message.setParseMode("Markdown");
+        message.setReplyMarkup(keyboard);
+        
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Failed to send business panel message", e);
+        }
+    }
+
     private void sendUnknownCommand(Long chatId) {
         String text = "❌ Неизвестная команда. Используй /help для списка команд.";
         sendMessage(chatId, text);
@@ -279,6 +403,21 @@ public class LoyaltyBot extends TelegramLongPollingBot {
             log.info("Message sent to {}: {}", chatId, text);
         } catch (TelegramApiException e) {
             log.error("Failed to send message to {}: {}", chatId, e.getMessage());
+        }
+    }
+
+    private void editMessageText(Long chatId, Integer messageId, String text) {
+        EditMessageText editMessage = new EditMessageText();
+        editMessage.setChatId(chatId.toString());
+        editMessage.setMessageId(messageId);
+        editMessage.setText(text);
+        editMessage.setParseMode("Markdown");
+        
+        try {
+            execute(editMessage);
+            log.info("Message edited for {}: {}", chatId, text);
+        } catch (TelegramApiException e) {
+            log.error("Failed to edit message: {}", e.getMessage());
         }
     }
 

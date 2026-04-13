@@ -26,6 +26,8 @@ telegram:
   bot:
     token: ${TELEGRAM_BOT_TOKEN:your-bot-token-here}
     username: ${TELEGRAM_BOT_USERNAME:LoyaltyCouponBot}
+    # Mini App URL (будет обновлено после деплоя)
+    mini-app-url: ${TELEGRAM_MINI_APP_URL:https://your-domain.com/app}
 
 server:
   port: 8080
@@ -34,3 +36,4 @@ logging:
   level:
     com.loyaltybot: DEBUG
     org.telegram: INFO
+    org.springframework.web: INFO
