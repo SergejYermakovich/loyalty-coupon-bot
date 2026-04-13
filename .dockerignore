@@ -1,0 +1,11 @@
+target/
+!.dockerignore
+.git/
+.gitignore
+*.md
+!README.md
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

@@ -87,32 +87,74 @@ src/main/java/com/loyaltybot/
 
 ### Prerequisites
 - Java 17+
-- PostgreSQL 14+
+- Docker & Docker Compose (recommended)
+- PostgreSQL 14+ (if not using Docker)
 - Telegram Bot Token (from @BotFather)
 
-### Configuration
+### Quick Start with Docker (Recommended)
 
-Create `.env` or set environment variables:
+**1. Clone repository:**
+```bash
+git clone https://github.com/SergejYermakovich/loyalty-coupon-bot.git
+cd loyalty-coupon-bot
+```
 
+**2. Create `.env` file:**
+```bash
+TELEGRAM_BOT_TOKEN=your-bot-token-here
+TELEGRAM_BOT_USERNAME=YourBotName
+TELEGRAM_MINI_APP_URL=https://your-domain.com/app
+```
+
+**3. Start all services:**
+```bash
+docker-compose up -d
+```
+
+This will start:
+- PostgreSQL database (port 5432)
+- Spring Boot application (port 8080)
+- Nginx for Mini Apps (port 80)
+
+**4. Check logs:**
+```bash
+docker-compose logs -f app
+```
+
+**5. Stop services:**
+```bash
+docker-compose down
+```
+
+### Manual Setup (without Docker)
+
+**1. Run PostgreSQL:**
+```bash
+docker run --name loyaltybot-db \
+  -e POSTGRES_DB=loyaltybot \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  -d postgres:15
+```
+
+**2. Set environment variables:**
 ```bash
 export TELEGRAM_BOT_TOKEN=your-bot-token-here
 export TELEGRAM_BOT_USERNAME=YourBotName
+export TELEGRAM_MINI_APP_URL=http://localhost:8080/app
 ```
 
-### Run with Docker (PostgreSQL)
-
+**3. Build & Run:**
 ```bash
-docker run --name loyaltybot-db -e POSTGRES_DB=loyaltybot \
-  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 -d postgres:15
+mvn clean package -DskipTests
+java -jar target/loyalty-coupon-bot-0.1.0-SNAPSHOT.jar
 ```
 
-### Build & Run
-
-```bash
-mvn clean install
-mvn spring-boot:run
-```
+**4. Access:**
+- Mini Apps: http://localhost:8080/app
+- API: http://localhost:8080/api
+- Health: http://localhost:8080/actuator/health
 
 ### Bot Commands
 
@@ -122,13 +164,13 @@ mvn spring-boot:run
 - `/mycoupons` — View your active coupons with progress
 - `/activatecoupon <ID>` — Activate a coupon by ID
 - `/showqr <ID>` — Show QR code for a coupon (image)
-- `/claimreward <ID>` — Claim reward for completed coupon
+- `/claimreward <ID>` — Claim reward for completed coupon (when 100%)
 
 **For Business:**
 - `/createbusiness <Name>` — Create a business (for owners)
 - `/scan` — Open QR Scanner Mini App
 - `/business` — Open Business Dashboard Mini App
-- `/stats` — View business statistics
+- `/stats` — View business statistics (text report)
 
 ## 📄 Documentation
 

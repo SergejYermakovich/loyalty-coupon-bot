@@ -37,3 +37,13 @@ logging:
     com.loyaltybot: DEBUG
     org.telegram: INFO
     org.springframework.web: INFO
+
+# Actuator for Docker health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
