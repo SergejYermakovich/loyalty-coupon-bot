@@ -38,34 +38,46 @@ Small businesses (coffee shops, barber shops, salons) struggle with:
 src/main/java/com/loyaltybot/
 ├── LoyaltyCouponBotApplication.java
 ├── bot/
-│   └── LoyaltyBot.java          # Telegram bot handler
+│   └── LoyaltyBot.java              # Telegram bot handler
 ├── config/
-│   └── TelegramBotConfig.java   # Bot configuration
+│   └── TelegramBotConfig.java       # Bot configuration
 ├── entity/
-│   ├── BaseEntity.java          # Base entity with timestamps
-│   ├── Business.java            # Business entity
-│   ├── Coupon.java              # Coupon entity
-│   ├── User.java                # User entity
-│   ├── UserCoupon.java          # User-Coupon progress
-│   ├── Visit.java               # Visit history
-│   └── StaffMember.java         # Staff entity
+│   ├── BaseEntity.java              # Base entity with timestamps
+│   ├── Business.java                # Business entity
+│   ├── Coupon.java                  # Coupon entity
+│   ├── User.java                    # User entity
+│   ├── UserCoupon.java              # User-Coupon progress
+│   ├── Visit.java                   # Visit history
+│   └── StaffMember.java             # Staff entity
 ├── repository/
 │   ├── BusinessRepository.java
 │   ├── CouponRepository.java
 │   ├── UserRepository.java
-│   └── UserCouponRepository.java
+│   ├── UserCouponRepository.java
+│   └── VisitRepository.java
 └── service/
     ├── BusinessService.java
     ├── CouponService.java
-    └── UserService.java
+    ├── UserService.java
+    ├── UserCouponService.java       # Stamp management, rewards
+    └── QrCodeService.java           # QR code generation (ZXing)
 ```
 
 ## 📅 MVP Timeline
 
-- **Week 1-2:** Core infrastructure ✅ (Spring Boot, DB, Bot)
-- **Week 3-4:** Core features (coupons, QR scanning, stamps)
+- **Week 1-2:** Core infrastructure ✅ (Spring Boot, DB, Bot, Entities, Repositories, Services)
+- **Week 3-4:** Core features 🚧 (coupons ✅, QR generation ✅, stamps ✅, QR scanning, Business web panel)
 - **Week 5:** Admin dashboard
 - **Week 6:** Polish + launch with pilot businesses
+
+### ✅ Completed Features
+
+- Database schema with Liquibase migrations
+- 7 JPA entities with relationships
+- Telegram Bot with commands: `/start`, `/help`, `/mycoupons`, `/createbusiness`, `/activatecoupon`, `/showqr`
+- UserCoupon management (activate, add stamp, claim reward)
+- QR code generation for coupons (ZXing)
+- Business & Coupon CRUD services
 
 ## 🚀 Getting Started
 
@@ -102,8 +114,11 @@ mvn spring-boot:run
 
 - `/start` — Welcome message
 - `/help` — Help information
-- `/mycoupons` — View your coupons
-- `/createbusiness` — Create a business (for owners)
+- `/mycoupons` — View your active coupons with progress
+- `/activatecoupon <ID>` — Activate a coupon by ID
+- `/showqr <ID>` — Show QR code for a coupon
+- `/createbusiness <Name>` — Create a business (for owners)
+- `/createbusiness` — Show business creation instructions
 
 ## 📄 Documentation
 
